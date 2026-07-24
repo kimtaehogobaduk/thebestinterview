@@ -207,14 +207,16 @@ function InterviewRoom() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-exam-room text-foreground">
-      <div className="relative flex-1">
-        <InterviewerAvatars speaking={speaking} />
-        <div className="absolute right-4 top-4 h-40 w-56">
-          <SelfCamera className="h-full w-full" />
+      <div className="relative flex min-w-0 flex-1 flex-col">
+        <div className="relative min-h-0 flex-1">
+          <InterviewerAvatars speaking={speaking} />
+          <div className="absolute right-4 top-4 h-40 w-56">
+            <SelfCamera className="h-full w-full" />
+          </div>
         </div>
-        <div className="absolute inset-x-0 bottom-24 mx-auto max-w-3xl px-6">
-          <div className="rounded-xl border border-border bg-black/50 p-4 backdrop-blur">
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="relative z-30 shrink-0 border-t border-white/10 bg-neutral-950/95 px-6 py-4 shadow-[0_-8px_24px_rgba(0,0,0,0.6)] backdrop-blur">
+          <div className="mx-auto max-w-4xl">
+            <div className="flex items-center justify-between text-xs text-neutral-400">
               <span>{status}</span>
               {current && (
                 <span>
@@ -224,11 +226,13 @@ function InterviewRoom() {
               )}
             </div>
             {current && (
-              <p className="mt-2 text-lg font-medium leading-relaxed">{current.question_text}</p>
+              <p className="mt-2 text-xl font-semibold leading-relaxed text-white">
+                {current.question_text}
+              </p>
             )}
             {transcript && (
-              <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">
-                <span className="text-primary">내 답변: </span>
+              <p className="mt-3 border-t border-white/10 pt-3 text-base leading-relaxed text-neutral-200">
+                <span className="font-semibold text-primary">내 답변: </span>
                 {transcript}
               </p>
             )}
