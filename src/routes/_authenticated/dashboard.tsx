@@ -58,7 +58,7 @@ function Dashboard() {
       });
       // Attach analysis to session
       await supabase.from("interview_sessions").update({ school_analysis: analysis as never }).eq("id", id);
-      navigate({ to: mode === "full" ? "/interview/$id" : "/practice/$id", params: { id } });
+      navigate({ to: "/interview/$id", params: { id } });
     } catch (e) {
       alert(e instanceof Error ? e.message : "오류");
     } finally {
