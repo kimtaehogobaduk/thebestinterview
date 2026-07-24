@@ -34,16 +34,11 @@ function Dashboard() {
   const [starting, setStarting] = useState(false);
 
   const hasDocs =
-    (docs.data?.find((d) => d.kind === "jaso")?.extracted_text?.length ?? 0) > 30 &&
+    (docs.data?.find((d) => d.kind === "jaso")?.extracted_text?.length ?? 0) > 30 ||
     (docs.data?.find((d) => d.kind === "saengbu")?.extracted_text?.length ?? 0) > 30;
 
   async function beginSession() {
     if (!school.trim()) return;
-    if (!hasDocs) {
-      alert("자기소개서와 생활기록부를 먼저 등록해 주세요.");
-      navigate({ to: "/documents" });
-      return;
-    }
     setStarting(true);
     try {
       const analysis = await analyzeFn({ data: { school, school_type: schoolType } });
