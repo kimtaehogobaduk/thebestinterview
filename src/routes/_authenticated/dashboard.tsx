@@ -2,14 +2,8 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  listMySessions,
-  getMyProfile,
-  getMyDocuments,
-  analyzeSchool,
-  startSession,
-} from "@/lib/interview.functions";
-import { useState } from "react";
+import { listMySessions, getMyProfile, getMyDocuments } from "@/lib/interview.functions";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -20,8 +14,6 @@ function Dashboard() {
   const listFn = useServerFn(listMySessions);
   const profileFn = useServerFn(getMyProfile);
   const docsFn = useServerFn(getMyDocuments);
-  const analyzeFn = useServerFn(analyzeSchool);
-  const startFn = useServerFn(startSession);
 
   const sessions = useQuery({ queryKey: ["sessions"], queryFn: () => listFn() });
   const profile = useQuery({ queryKey: ["profile"], queryFn: () => profileFn() });
@@ -30,35 +22,29 @@ function Dashboard() {
   const [school, setSchool] = useState("");
   const [schoolType, setSchoolType] = useState("자사고");
   const [mode, setMode] = useState<"full" | "pressure">("full");
-  const [time, setTime] = useState<number | null>(90);
-  const [starting, setStarting] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("iv.school") || "";
+    const storedType = localStorage.getItem("iv.school_type") || "";
+    if (stored) setSchool(stored);
+    if (storedType) setSchoolType(storedType);
+  }, []);
+
+  useEffect(() => {
+    if (profile.data?.target_school && !school) setSchool(profile.data.target_school);
+    if (profile.data?.school_type) setSchoolType(profile.data.school_type);
+  }, [profile.data, school]);
 
   const hasDocs =
     (docs.data?.find((d) => d.kind === "jaso")?.extracted_text?.length ?? 0) > 30 ||
     (docs.data?.find((d) => d.kind === "saengbu")?.extracted_text?.length ?? 0) > 30;
 
-  async function beginSession() {
+  function beginSession() {
     if (!school.trim()) return;
-    setStarting(true);
-    try {
-      const analysis = await analyzeFn({ data: { school, school_type: schoolType } });
-      const { id } = await startFn({
-        data: {
-          mode,
-          target_school: school,
-          school_type: schoolType,
-          per_question_time_sec: time,
-          time_limit_enabled: time !== null,
-        },
-      });
-      // Attach analysis to session
-      await supabase.from("interview_sessions").update({ school_analysis: analysis as never }).eq("id", id);
-      navigate({ to: "/interview/$id", params: { id } });
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "오류");
-    } finally {
-      setStarting(false);
-    }
+    localStorage.setItem("iv.school", school);
+    localStorage.setItem("iv.school_type", schoolType);
+    localStorage.setItem("iv.mode", mode);
+    navigate({ to: "/interview", search: { school, type: schoolType, mode } as never });
   }
 
   return (
@@ -109,6 +95,7 @@ function Dashboard() {
 
         <section className="mt-10 rounded-xl border border-border bg-card p-6">
           <h2 className="text-lg font-semibold">새 면접 시작</h2>
+          <p className="mt-1 text-xs text-muted-foreground">문항당 시간은 면접 중 실시간으로 조절합니다.</p>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <div>
               <label className="text-xs text-muted-foreground">지원 학교</label>
@@ -131,7 +118,7 @@ function Dashboard() {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">모드</label>
               <div className="mt-1 flex gap-2">
                 <button
@@ -148,32 +135,13 @@ function Dashboard() {
                 </button>
               </div>
             </div>
-            <div>
-              <label className="text-xs text-muted-foreground">문항당 시간</label>
-              <div className="mt-1 flex flex-wrap gap-2">
-                {[
-                  { v: 60, l: "1분" },
-                  { v: 90, l: "1분 30초" },
-                  { v: 120, l: "2분" },
-                  { v: null, l: "무제한" },
-                ].map((o) => (
-                  <button
-                    key={o.l}
-                    onClick={() => setTime(o.v)}
-                    className={`rounded-md border px-3 py-2 text-xs ${time === o.v ? "border-primary bg-primary/10" : "border-input"}`}
-                  >
-                    {o.l}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
           <button
             onClick={beginSession}
-            disabled={starting || !school.trim()}
+            disabled={!school.trim()}
             className="mt-6 rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50"
           >
-            {starting ? "학교 분석 중..." : "면접장 입장"}
+            면접장 입장
           </button>
         </section>
 
