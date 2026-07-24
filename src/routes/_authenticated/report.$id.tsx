@@ -75,19 +75,27 @@ function ReportPage() {
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               <section className="rounded-xl border border-border bg-card p-6">
                 <h3 className="font-semibold text-primary">강점</h3>
-                <ul className="mt-2 list-inside list-disc text-sm">
-                  {report.strengths.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
+                {report.strengths?.length ? (
+                  <ul className="mt-2 list-inside list-disc text-sm">
+                    {report.strengths.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm font-semibold text-muted-foreground">강점 없음</p>
+                )}
               </section>
               <section className="rounded-xl border border-border bg-card p-6">
                 <h3 className="font-semibold text-destructive">약점</h3>
-                <ul className="mt-2 list-inside list-disc text-sm">
-                  {report.weaknesses.map((s, i) => (
-                    <li key={i}>{s}</li>
-                  ))}
-                </ul>
+                {report.weaknesses?.length ? (
+                  <ul className="mt-2 list-inside list-disc text-sm">
+                    {report.weaknesses.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-muted-foreground">특이 사항 없음</p>
+                )}
               </section>
             </div>
 

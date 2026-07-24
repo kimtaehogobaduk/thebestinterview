@@ -263,16 +263,24 @@ export const generateReport = createServerFn({ method: "POST" })
       })
       .join("\n\n");
 
-    const sys = `당신은 대한민국 최상위 특목고/자사고의 AI 수석 입학사정관입니다. 아래 면접 세션 전체를 분석하여 JSON으로만 답하세요.
+    const sys = `당신은 대한민국 최상위 특목고/자사고의 AI 수석 입학사정관입니다. 아래 면접 세션 전체를 냉정하고 직설적으로 분석해 JSON으로만 답하세요.
+
+평가 원칙 (엄격):
+- 사실 기반, 근거 필수. 과장된 칭찬 금지. 완곡한 표현으로 비판을 감싸지 말 것.
+- 지원자의 강점이 실제로 관찰되지 않았다면 strengths는 빈 배열([])을 반환.
+- weaknesses는 관찰된 문제만 명시. 없으면 빈 배열.
+- 무응답/짧은 답변은 점수를 낮게 매길 것.
+- summary는 결과 요약이지 위로가 아님. 3~5문장, 담백.
+
 스키마: {
-  "summary": string(3~5문장 종합평),
+  "summary": string,
   "fit_score": 0~100,
   "logic_score": 0~100,
   "attitude_score": 0~100,
-  "strengths": string[3],
-  "weaknesses": string[3],
+  "strengths": string[],
+  "weaknesses": string[],
   "interviewer_A": string, "interviewer_B": string, "interviewer_C": string,
-  "action_items": string[3]
+  "action_items": string[]
 }`;
     const raw = await cerebrasChat(
       0,
@@ -283,7 +291,7 @@ export const generateReport = createServerFn({ method: "POST" })
           content: `지원 학교: ${session.target_school}\n모드: ${session.mode}\n\n=== 면접 기록 ===\n${transcript}`,
         },
       ],
-      { temperature: 0.4, max_tokens: 2000, json: true },
+      { temperature: 0.3, max_tokens: 2000, json: true },
     );
     const parsed = safeParseJson<{
       summary: string;

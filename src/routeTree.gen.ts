@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as InterviewRouteImport } from './routes/interview'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,8 +18,12 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedReportIdRouteImport } from './routes/_authenticated/report.$id'
-import { Route as AuthenticatedInterviewIdRouteImport } from './routes/_authenticated/interview.$id'
 
+const InterviewRoute = InterviewRouteImport.update({
+  id: '/interview',
+  path: '/interview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -58,31 +63,25 @@ const AuthenticatedReportIdRoute = AuthenticatedReportIdRouteImport.update({
   path: '/report/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedInterviewIdRoute =
-  AuthenticatedInterviewIdRouteImport.update({
-    id: '/interview/$id',
-    path: '/interview/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/interview': typeof InterviewRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
-  '/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/interview': typeof InterviewRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
-  '/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRoutesById {
@@ -90,11 +89,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/interview': typeof InterviewRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
-  '/_authenticated/interview/$id': typeof AuthenticatedInterviewIdRoute
   '/_authenticated/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRouteTypes {
@@ -102,32 +101,32 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/interview'
     | '/admin'
     | '/dashboard'
     | '/documents'
     | '/api/stt'
-    | '/interview/$id'
     | '/report/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/interview'
     | '/admin'
     | '/dashboard'
     | '/documents'
     | '/api/stt'
-    | '/interview/$id'
     | '/report/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/interview'
     | '/_authenticated/admin'
     | '/_authenticated/dashboard'
     | '/_authenticated/documents'
     | '/api/stt'
-    | '/_authenticated/interview/$id'
     | '/_authenticated/report/$id'
   fileRoutesById: FileRoutesById
 }
@@ -135,11 +134,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  InterviewRoute: typeof InterviewRoute
   ApiSttRoute: typeof ApiSttRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/interview': {
+      id: '/interview'
+      path: '/interview'
+      fullPath: '/interview'
+      preLoaderRoute: typeof InterviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -196,13 +203,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/interview/$id': {
-      id: '/_authenticated/interview/$id'
-      path: '/interview/$id'
-      fullPath: '/interview/$id'
-      preLoaderRoute: typeof AuthenticatedInterviewIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
   }
 }
 
@@ -210,7 +210,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
-  AuthenticatedInterviewIdRoute: typeof AuthenticatedInterviewIdRoute
   AuthenticatedReportIdRoute: typeof AuthenticatedReportIdRoute
 }
 
@@ -218,7 +217,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
-  AuthenticatedInterviewIdRoute: AuthenticatedInterviewIdRoute,
   AuthenticatedReportIdRoute: AuthenticatedReportIdRoute,
 }
 
@@ -229,6 +227,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  InterviewRoute: InterviewRoute,
   ApiSttRoute: ApiSttRoute,
 }
 export const routeTree = rootRouteImport

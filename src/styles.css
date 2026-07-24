@@ -40,38 +40,40 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.145 0.02 260);
-  --foreground: oklch(0.96 0.005 260);
-  --card: oklch(0.19 0.02 260);
-  --card-foreground: oklch(0.96 0.005 260);
-  --popover: oklch(0.19 0.02 260);
-  --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.72 0.16 55);
-  --primary-foreground: oklch(0.15 0.02 260);
-  --secondary: oklch(0.28 0.03 260);
-  --secondary-foreground: oklch(0.96 0.005 260);
-  --muted: oklch(0.24 0.02 260);
-  --muted-foreground: oklch(0.7 0.02 260);
-  --accent: oklch(0.62 0.18 250);
-  --accent-foreground: oklch(0.98 0.005 260);
+  --radius: 0.75rem;
+  /* Bright, warm palette — cream background, warm coral primary */
+  --background: oklch(0.985 0.008 85);
+  --foreground: oklch(0.22 0.02 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.02 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.02 260);
+  --primary: oklch(0.68 0.19 40);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.95 0.02 80);
+  --secondary-foreground: oklch(0.28 0.03 260);
+  --muted: oklch(0.94 0.015 80);
+  --muted-foreground: oklch(0.5 0.02 260);
+  --accent: oklch(0.72 0.15 220);
+  --accent-foreground: oklch(0.15 0.02 260);
   --destructive: oklch(0.6 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 260);
+  --destructive-foreground: oklch(0.99 0 0);
   --warn: oklch(0.78 0.16 80);
-  --border: oklch(0.28 0.02 260);
-  --input: oklch(0.28 0.02 260);
-  --ring: oklch(0.72 0.16 55);
-  --chart-1: oklch(0.72 0.16 55);
-  --chart-2: oklch(0.62 0.18 250);
+  --border: oklch(0.9 0.01 80);
+  --input: oklch(0.9 0.01 80);
+  --ring: oklch(0.68 0.19 40);
+  --chart-1: oklch(0.68 0.19 40);
+  --chart-2: oklch(0.62 0.18 220);
   --chart-3: oklch(0.65 0.15 160);
   --chart-4: oklch(0.72 0.18 320);
-  --chart-5: oklch(0.7 0.18 30);
-  --exam-room: oklch(0.11 0.015 260);
+  --chart-5: oklch(0.7 0.18 90);
+  /* Interview room: warm cream tone instead of pitch black */
+  --exam-room: oklch(0.28 0.02 60);
   --exam-light: oklch(0.98 0.02 90);
 }
 
 .dark {
-  --background: oklch(0.11 0.015 260);
+  --background: oklch(0.16 0.015 260);
   --foreground: oklch(0.96 0.005 260);
 }
 
