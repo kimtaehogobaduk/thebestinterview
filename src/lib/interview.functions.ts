@@ -185,7 +185,7 @@ ${jaso.slice(0, 3500) || "(없음)"}
 ${saengbu.slice(0, 3500) || "(없음)"}
 
 지원 학교(${session.target_school}) 분석:
-${schoolAnalysis}
+${schoolAnalysis}${knowledgeBlock}
 
 이미 출제된 질문 (절대 중복 금지, 완전히 새 축으로):
 ${askedList}
