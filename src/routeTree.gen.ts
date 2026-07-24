@@ -17,7 +17,6 @@ import { Route as AuthenticatedDocumentsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedReportIdRouteImport } from './routes/_authenticated/report.$id'
-import { Route as AuthenticatedPracticeIdRouteImport } from './routes/_authenticated/practice.$id'
 import { Route as AuthenticatedInterviewIdRouteImport } from './routes/_authenticated/interview.$id'
 
 const AuthRoute = AuthRouteImport.update({
@@ -59,11 +58,6 @@ const AuthenticatedReportIdRoute = AuthenticatedReportIdRouteImport.update({
   path: '/report/$id',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedPracticeIdRoute = AuthenticatedPracticeIdRouteImport.update({
-  id: '/practice/$id',
-  path: '/practice/$id',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedInterviewIdRoute =
   AuthenticatedInterviewIdRouteImport.update({
     id: '/interview/$id',
@@ -79,7 +73,6 @@ export interface FileRoutesByFullPath {
   '/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
   '/interview/$id': typeof AuthenticatedInterviewIdRoute
-  '/practice/$id': typeof AuthenticatedPracticeIdRoute
   '/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRoutesByTo {
@@ -90,7 +83,6 @@ export interface FileRoutesByTo {
   '/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
   '/interview/$id': typeof AuthenticatedInterviewIdRoute
-  '/practice/$id': typeof AuthenticatedPracticeIdRoute
   '/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRoutesById {
@@ -103,7 +95,6 @@ export interface FileRoutesById {
   '/_authenticated/documents': typeof AuthenticatedDocumentsRoute
   '/api/stt': typeof ApiSttRoute
   '/_authenticated/interview/$id': typeof AuthenticatedInterviewIdRoute
-  '/_authenticated/practice/$id': typeof AuthenticatedPracticeIdRoute
   '/_authenticated/report/$id': typeof AuthenticatedReportIdRoute
 }
 export interface FileRouteTypes {
@@ -116,7 +107,6 @@ export interface FileRouteTypes {
     | '/documents'
     | '/api/stt'
     | '/interview/$id'
-    | '/practice/$id'
     | '/report/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,7 +117,6 @@ export interface FileRouteTypes {
     | '/documents'
     | '/api/stt'
     | '/interview/$id'
-    | '/practice/$id'
     | '/report/$id'
   id:
     | '__root__'
@@ -139,7 +128,6 @@ export interface FileRouteTypes {
     | '/_authenticated/documents'
     | '/api/stt'
     | '/_authenticated/interview/$id'
-    | '/_authenticated/practice/$id'
     | '/_authenticated/report/$id'
   fileRoutesById: FileRoutesById
 }
@@ -208,13 +196,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedReportIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/practice/$id': {
-      id: '/_authenticated/practice/$id'
-      path: '/practice/$id'
-      fullPath: '/practice/$id'
-      preLoaderRoute: typeof AuthenticatedPracticeIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/interview/$id': {
       id: '/_authenticated/interview/$id'
       path: '/interview/$id'
@@ -230,7 +211,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDocumentsRoute: typeof AuthenticatedDocumentsRoute
   AuthenticatedInterviewIdRoute: typeof AuthenticatedInterviewIdRoute
-  AuthenticatedPracticeIdRoute: typeof AuthenticatedPracticeIdRoute
   AuthenticatedReportIdRoute: typeof AuthenticatedReportIdRoute
 }
 
@@ -239,7 +219,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDocumentsRoute: AuthenticatedDocumentsRoute,
   AuthenticatedInterviewIdRoute: AuthenticatedInterviewIdRoute,
-  AuthenticatedPracticeIdRoute: AuthenticatedPracticeIdRoute,
   AuthenticatedReportIdRoute: AuthenticatedReportIdRoute,
 }
 
