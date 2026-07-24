@@ -1,0 +1,1 @@
+- [Locked frontend toolchain](frontend-toolchain.md) — keep Bun installs frozen; semver drift in Vite/TanStack can break production builds while dev still works.
