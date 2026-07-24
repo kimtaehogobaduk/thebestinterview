@@ -167,6 +167,13 @@ export const generateNextQuestion = createServerFn({ method: "POST" })
     const askedList = prevQuestions.map((q, i) => `${i + 1}. [${q.interviewer}] ${q.question_text}`).join("\n") || "(없음)";
     const schoolAnalysis = JSON.stringify(session.school_analysis ?? {});
 
+    const { retrieveKnowledgeContext } = await import("@/lib/knowledge.server");
+    const knowledgeQuery = `${session.target_school} ${session.school_type ?? ""} ${lastQ?.question_text ?? ""} ${jaso.slice(0, 400)}`;
+    const knowledgeChunks = await retrieveKnowledgeContext(sb, knowledgeQuery, 4);
+    const knowledgeBlock = knowledgeChunks.length
+      ? `\n\n[관리자 학습 지식베이스 발췌 — 문항 설계 시 참고]:\n${knowledgeChunks.map((c, i) => `(${i + 1}) ${c}`).join("\n")}`
+      : "";
+
     const sys = `당신은 대한민국 최상위권 특목고·자사고의 엄격하고 정밀한 입학사정관이자 ${spec.name}입니다.
 역할: ${spec.role}
 집중: ${spec.focus}
@@ -178,7 +185,7 @@ ${jaso.slice(0, 3500) || "(없음)"}
 ${saengbu.slice(0, 3500) || "(없음)"}
 
 지원 학교(${session.target_school}) 분석:
-${schoolAnalysis}
+${schoolAnalysis}${knowledgeBlock}
 
 이미 출제된 질문 (절대 중복 금지, 완전히 새 축으로):
 ${askedList}
