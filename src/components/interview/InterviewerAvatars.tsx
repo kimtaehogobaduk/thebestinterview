@@ -1,163 +1,131 @@
-import { Suspense, useMemo, useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import * as THREE from "three";
+import { useMemo } from "react";
+import aAsset from "@/assets/interviewer-a.jpg.asset.json";
+import bAsset from "@/assets/interviewer-b.jpg.asset.json";
+import cAsset from "@/assets/interviewer-c.jpg.asset.json";
 
 export type InterviewerId = "A" | "B" | "C";
 
 interface Props {
   speaking: InterviewerId | null;
-  avatarConfig?: Record<InterviewerId, { skin?: string; suit?: string; accent?: string }>;
+  avatarConfig?: Record<InterviewerId, { image?: string; label?: string }>;
 }
 
-const defaults: Record<InterviewerId, { skin: string; suit: string; accent: string; label: string }> = {
-  A: { skin: "#f0c7a3", suit: "#1e293b", accent: "#f59e0b", label: "A · 전공" },
-  B: { skin: "#e5b48a", suit: "#0f172a", accent: "#3b82f6", label: "B · 논리" },
-  C: { skin: "#f4d1b0", suit: "#1c1917", accent: "#ef4444", label: "C · 인성" },
+const defaults: Record<InterviewerId, { image: string; label: string; accent: string }> = {
+  A: { image: aAsset.url, label: "A · 전공", accent: "#f59e0b" },
+  B: { image: bAsset.url, label: "B · 논리", accent: "#3b82f6" },
+  C: { image: cAsset.url, label: "C · 인성", accent: "#ef4444" },
 };
 
-function Interviewer({ id, position, config, speaking }: {
+function Portrait({
+  id,
+  image,
+  label,
+  accent,
+  speaking,
+}: {
   id: InterviewerId;
-  position: [number, number, number];
-  config: { skin: string; suit: string; accent: string };
+  image: string;
+  label: string;
+  accent: string;
   speaking: boolean;
 }) {
-  const headRef = useRef<THREE.Group | null>(null);
-  const jawRef = useRef<THREE.Mesh | null>(null);
-  const eyeLRef = useRef<THREE.Mesh | null>(null);
-  const eyeRRef = useRef<THREE.Mesh | null>(null);
-
-  useFrame((state) => {
-    const t = state.clock.elapsedTime;
-    if (headRef.current) {
-      const idle = Math.sin(t * 0.6 + position[0]) * 0.04;
-      headRef.current.rotation.y = idle + (speaking ? Math.sin(t * 3) * 0.06 : 0);
-      headRef.current.rotation.x = speaking ? Math.sin(t * 2.4) * 0.03 : idle * 0.5;
-    }
-    if (jawRef.current) {
-      const scaleY = speaking ? 1 + Math.abs(Math.sin(t * 12)) * 0.35 : 1;
-      jawRef.current.scale.y = scaleY;
-    }
-    if (eyeLRef.current && eyeRRef.current) {
-      const glance = Math.sin(t * 0.4 + position[0] * 2) * 0.05;
-      eyeLRef.current.position.x = -0.11 + glance;
-      eyeRRef.current.position.x = 0.11 + glance;
-    }
-  });
-
   return (
-    <group position={position}>
-      {/* torso / suit */}
-      <mesh position={[0, -1, 0]}>
-        <cylinderGeometry args={[0.55, 0.7, 1.5, 24]} />
-        <meshStandardMaterial color={config.suit} />
-      </mesh>
-      {/* neck */}
-      <mesh position={[0, -0.15, 0]}>
-        <cylinderGeometry args={[0.18, 0.2, 0.25, 16]} />
-        <meshStandardMaterial color={config.skin} />
-      </mesh>
-      {/* head */}
-      <group ref={headRef} position={[0, 0.2, 0]}>
-        <mesh>
-          <sphereGeometry args={[0.42, 32, 32]} />
-          <meshStandardMaterial color={config.skin} roughness={0.6} />
-        </mesh>
-        {/* hair */}
-        <mesh position={[0, 0.15, -0.02]} scale={[1, 0.55, 1]}>
-          <sphereGeometry args={[0.44, 32, 32]} />
-          <meshStandardMaterial color="#111827" roughness={0.9} />
-        </mesh>
-        {/* eyes */}
-        <mesh ref={eyeLRef} position={[-0.11, 0.03, 0.36]}>
-          <sphereGeometry args={[0.045, 16, 16]} />
-          <meshStandardMaterial color="#0b1220" />
-        </mesh>
-        <mesh ref={eyeRRef} position={[0.11, 0.03, 0.36]}>
-          <sphereGeometry args={[0.045, 16, 16]} />
-          <meshStandardMaterial color="#0b1220" />
-        </mesh>
-        {/* jaw / mouth */}
-        <mesh ref={jawRef} position={[0, -0.16, 0.36]}>
-          <boxGeometry args={[0.14, 0.03, 0.02]} />
-          <meshStandardMaterial color="#3b0d1a" />
-        </mesh>
-      </group>
-      {/* accent tie */}
-      <mesh position={[0, -0.5, 0.51]}>
-        <boxGeometry args={[0.08, 0.5, 0.02]} />
-        <meshStandardMaterial color={config.accent} />
-      </mesh>
-      {/* speaking ring */}
-      {speaking && (
-        <mesh position={[0, -1.7, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-          <ringGeometry args={[0.9, 1.05, 32]} />
-          <meshBasicMaterial color={config.accent} transparent opacity={0.6} />
-        </mesh>
-      )}
-    </group>
-  );
-}
-
-function Desk() {
-  return (
-    <mesh position={[0, -2.05, 0.6]}>
-      <boxGeometry args={[6, 0.15, 1.6]} />
-      <meshStandardMaterial color="#1a2033" />
-    </mesh>
+    <div className="relative flex flex-col items-center">
+      <div
+        className={`relative overflow-hidden rounded-2xl border transition-all duration-500 ${
+          speaking
+            ? "scale-[1.04] border-transparent shadow-[0_0_40px_-4px_var(--iv-accent)]"
+            : "scale-100 border-white/5 opacity-80"
+        }`}
+        style={{ ["--iv-accent" as string]: accent, width: "clamp(180px, 22vw, 340px)" }}
+      >
+        <img
+          src={image}
+          alt={`면접관 ${id}`}
+          className={`h-full w-full object-cover ${speaking ? "iv-speak-anim" : "iv-idle-anim"}`}
+          draggable={false}
+        />
+        {speaking && (
+          <div
+            className="pointer-events-none absolute inset-0 ring-2 ring-inset"
+            style={{ boxShadow: `inset 0 0 0 2px ${accent}` }}
+          />
+        )}
+      </div>
+      <div
+        className={`mt-3 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+          speaking ? "text-foreground" : "text-muted-foreground"
+        }`}
+        style={{ background: speaking ? `${accent}33` : "rgba(0,0,0,.4)" }}
+      >
+        {label}
+      </div>
+    </div>
   );
 }
 
 export function InterviewerAvatars({ speaking, avatarConfig }: Props) {
-  const configs = useMemo(() => {
-    return (["A", "B", "C"] as const).map((id) => ({
-      id,
-      ...defaults[id],
-      ...(avatarConfig?.[id] ?? {}),
-    }));
-  }, [avatarConfig]);
+  const list = useMemo(
+    () =>
+      (["A", "B", "C"] as const).map((id) => ({
+        id,
+        image: avatarConfig?.[id]?.image ?? defaults[id].image,
+        label: avatarConfig?.[id]?.label ?? defaults[id].label,
+        accent: defaults[id].accent,
+      })),
+    [avatarConfig],
+  );
 
   return (
-    <div className="relative h-full w-full">
-      <Canvas camera={{ position: [0, 0.2, 5], fov: 42 }} shadows>
-        <color attach="background" args={["#0d1220"]} />
-        <fog attach="fog" args={["#0d1220", 6, 15]} />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 5, 4]} intensity={1.1} castShadow />
-        <directionalLight position={[-4, 2, 2]} intensity={0.4} color="#4b6cb7" />
-        <Suspense fallback={null}>
-          <Interviewer
-            id="A"
-            position={[-2, 0, 0]}
-            config={{ skin: configs[0].skin, suit: configs[0].suit, accent: configs[0].accent }}
-            speaking={speaking === "A"}
+    <div
+      className="relative flex h-full w-full flex-col items-center justify-end overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(ellipse at 50% 20%, #1a2033 0%, #0b0f1c 55%, #05070d 100%)",
+      }}
+    >
+      <style>{`
+        @keyframes iv-idle { 0%,100%{transform:translateY(0) scale(1);} 50%{transform:translateY(-2px) scale(1.005);} }
+        @keyframes iv-speak { 0%,100%{transform:translateY(0) scale(1);} 25%{transform:translateY(-3px) scale(1.01);} 60%{transform:translateY(1px) scale(1.005);} }
+        .iv-idle-anim { animation: iv-idle 6s ease-in-out infinite; }
+        .iv-speak-anim { animation: iv-speak 1.6s ease-in-out infinite; }
+      `}</style>
+
+      {/* portraits row */}
+      <div className="relative z-10 flex w-full items-end justify-center gap-[3vw] pb-[10vh] pt-[6vh]">
+        {list.map((p) => (
+          <Portrait
+            key={p.id}
+            id={p.id}
+            image={p.image}
+            label={p.label}
+            accent={p.accent}
+            speaking={speaking === p.id}
           />
-          <Interviewer
-            id="B"
-            position={[0, 0.05, 0.1]}
-            config={{ skin: configs[1].skin, suit: configs[1].suit, accent: configs[1].accent }}
-            speaking={speaking === "B"}
-          />
-          <Interviewer
-            id="C"
-            position={[2, 0, 0]}
-            config={{ skin: configs[2].skin, suit: configs[2].suit, accent: configs[2].accent }}
-            speaking={speaking === "C"}
-          />
-          <Desk />
-        </Suspense>
-        <OrbitControls enablePan={false} enableZoom={false} maxPolarAngle={Math.PI / 2.1} minPolarAngle={Math.PI / 2.6} />
-      </Canvas>
-      <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-around px-16 text-xs text-muted-foreground">
-        {configs.map((c) => (
-          <div
-            key={c.id}
-            className={`rounded-full px-3 py-1 ${speaking === c.id ? "bg-primary/20 text-foreground" : "bg-black/40"}`}
-          >
-            {c.label}
-          </div>
         ))}
       </div>
+
+      {/* wooden desk */}
+      <div
+        className="absolute bottom-0 left-0 right-0 z-20 h-[22vh]"
+        style={{
+          background:
+            "linear-gradient(180deg,#8a5a34 0%,#6b4322 25%,#4a2d15 70%,#2a1808 100%)",
+          boxShadow:
+            "inset 0 3px 0 rgba(255,220,180,0.15), inset 0 -20px 40px rgba(0,0,0,0.6), 0 -10px 40px rgba(0,0,0,0.5)",
+        }}
+      >
+        <div
+          className="h-full w-full opacity-30 mix-blend-overlay"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 2px, transparent 2px 40px), repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 1px, transparent 1px 90px)",
+          }}
+        />
+      </div>
+
+      {/* floor shadow under desk */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-[22vh] z-10 h-16 bg-gradient-to-b from-transparent to-black/60" />
     </div>
   );
 }
