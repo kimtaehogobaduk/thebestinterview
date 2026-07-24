@@ -139,30 +139,3 @@ export const deleteKnowledge = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Retrieve top-k knowledge context for a query. Callable by any authenticated user (used during question gen). */
-export async function retrieveKnowledgeContext(
-  supabase: {
-    rpc: (
-      name: string,
-      args: Record<string, unknown>,
-    ) => Promise<{ data: Array<{ content: string; similarity: number }> | null; error: unknown }>;
-  },
-  query: string,
-  k = 4,
-): Promise<string[]> {
-  if (!query.trim()) return [];
-  try {
-    const { embedTexts, toVectorLiteral } = await import("@/lib/knowledge.server");
-    const [vec] = await embedTexts([query]);
-    const { data } = await supabase.rpc("match_knowledge_chunks", {
-      query_embedding: toVectorLiteral(vec),
-      match_count: k,
-    });
-    return (data ?? [])
-      .filter((r) => r.similarity > 0.35)
-      .map((r) => r.content);
-  } catch (e) {
-    console.warn("[knowledge] retrieval failed", e);
-    return [];
-  }
-}
