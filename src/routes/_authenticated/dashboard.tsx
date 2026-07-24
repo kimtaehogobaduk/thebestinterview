@@ -34,16 +34,11 @@ function Dashboard() {
   const [starting, setStarting] = useState(false);
 
   const hasDocs =
-    (docs.data?.find((d) => d.kind === "jaso")?.extracted_text?.length ?? 0) > 30 &&
+    (docs.data?.find((d) => d.kind === "jaso")?.extracted_text?.length ?? 0) > 30 ||
     (docs.data?.find((d) => d.kind === "saengbu")?.extracted_text?.length ?? 0) > 30;
 
   async function beginSession() {
     if (!school.trim()) return;
-    if (!hasDocs) {
-      alert("자기소개서와 생활기록부를 먼저 등록해 주세요.");
-      navigate({ to: "/documents" });
-      return;
-    }
     setStarting(true);
     try {
       const analysis = await analyzeFn({ data: { school, school_type: schoolType } });
@@ -100,15 +95,15 @@ function Dashboard() {
         <p className="mt-2 text-muted-foreground">
           {hasDocs
             ? "자소서·생기부 등록 완료. 목표 학교를 지정하고 면접장에 입장하세요."
-            : "먼저 자기소개서와 생활기록부를 등록해 주세요."}
+            : "자소서·생기부는 선택 사항입니다. 등록하면 맞춤 문항 품질이 크게 향상됩니다."}
         </p>
 
         {!hasDocs && (
           <Link
             to="/documents"
-            className="mt-6 inline-block rounded-md bg-primary px-5 py-3 font-medium text-primary-foreground"
+            className="mt-6 inline-block rounded-md border border-input px-5 py-3 text-sm font-medium hover:bg-secondary"
           >
-            자소서·생기부 등록하기 →
+            자소서·생기부 등록하기 (선택) →
           </Link>
         )}
 
