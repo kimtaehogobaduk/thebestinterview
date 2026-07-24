@@ -125,3 +125,22 @@ export async function fetchYouTubeTranscript(
   if (text.length < 50) throw new Error("추출된 자막이 너무 짧습니다.");
   return { title, text, videoId };
 }
+
+/** Retrieve top-k knowledge chunks for a query string. Server-side only. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function retrieveKnowledgeContext(supabase: any, query: string, k = 4): Promise<string[]> {
+  if (!query.trim()) return [];
+  try {
+    const [vec] = await embedTexts([query]);
+    const { data } = await supabase.rpc("match_knowledge_chunks", {
+      query_embedding: toVectorLiteral(vec),
+      match_count: k,
+    });
+    return (data ?? [])
+      .filter((r: { similarity: number }) => r.similarity > 0.35)
+      .map((r: { content: string }) => r.content);
+  } catch (e) {
+    console.warn("[knowledge] retrieval failed", e);
+    return [];
+  }
+}
