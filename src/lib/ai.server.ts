@@ -104,8 +104,8 @@ export async function groqChat(
   const key = keys[0];
   if (!key) throw new Error("Groq API key missing");
   const body: Record<string, unknown> = {
-    model: opts.model ?? "llama-3.3-70b-versatile",
-    messages,
+    model: opts.model ?? REASONING_MODEL_GROQ,
+    messages: withJsonHint(messages, opts.json),
     temperature: opts.temperature ?? 0.5,
   };
   if (opts.json) body.response_format = { type: "json_object" };
