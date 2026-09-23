@@ -17,22 +17,35 @@ function getGroqKeys(): string[] {
   );
 }
 
-export async function cerebrasChat(
-  keyIndex: 0 | 1 | 2,
+// Reasoning/generation model. Cerebras is tried first when its keys have quota;
+// otherwise the same open-weight model on Groq serves the request.
+const REASONING_MODEL_CEREBRAS = "gpt-oss-120b";
+const REASONING_MODEL_GROQ = "openai/gpt-oss-120b";
+
+function withJsonHint(
   messages: { role: string; content: string }[],
-  opts: { temperature?: number; max_tokens?: number; json?: boolean } = {},
+  json?: boolean,
+) {
+  if (!json) return messages;
+  return [...messages, { role: "system", content: "Respond with json only." }];
+}
+
+async function openAiCompatChat(
+  url: string,
+  key: string,
+  model: string,
+  messages: { role: string; content: string }[],
+  opts: { temperature?: number; max_tokens?: number; json?: boolean },
+  label: string,
 ): Promise<string> {
-  const keys = getCerebrasKeys();
-  const key = keys[keyIndex] ?? keys[0];
-  if (!key) throw new Error("Cerebras API key missing");
   const body: Record<string, unknown> = {
-    model: "gpt-oss-120b",
-    messages,
+    model,
+    messages: withJsonHint(messages, opts.json),
     temperature: opts.temperature ?? 0.85,
     max_tokens: opts.max_tokens ?? 1200,
   };
   if (opts.json) body.response_format = { type: "json_object" };
-  const res = await fetch(CEREBRAS_URL, {
+  const res = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${key}`,
@@ -42,12 +55,45 @@ export async function cerebrasChat(
   });
   if (!res.ok) {
     const t = await res.text().catch(() => "");
-    throw new Error(`Cerebras ${res.status}: ${t.slice(0, 300)}`);
+    throw new Error(`${label} ${res.status}: ${t.slice(0, 300)}`);
   }
   const data = (await res.json()) as {
     choices?: Array<{ message?: { content?: string } }>;
   };
   return data.choices?.[0]?.message?.content ?? "";
+}
+
+export async function cerebrasChat(
+  keyIndex: 0 | 1 | 2,
+  messages: { role: string; content: string }[],
+  opts: { temperature?: number; max_tokens?: number; json?: boolean } = {},
+): Promise<string> {
+  const keys = getCerebrasKeys();
+  const key = keys[keyIndex] ?? keys[0];
+  if (key) {
+    try {
+      return await openAiCompatChat(
+        CEREBRAS_URL,
+        key,
+        REASONING_MODEL_CEREBRAS,
+        messages,
+        opts,
+        "Cerebras",
+      );
+    } catch (e) {
+      console.warn("[AI] Cerebras unavailable, falling back to Groq", e);
+    }
+  }
+  const groqKey = getGroqKeys()[0];
+  if (!groqKey) throw new Error("No available AI provider key");
+  return openAiCompatChat(
+    GROQ_URL,
+    groqKey,
+    REASONING_MODEL_GROQ,
+    messages,
+    opts,
+    "Groq",
+  );
 }
 
 export async function groqChat(
