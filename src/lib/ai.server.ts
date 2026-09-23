@@ -91,7 +91,8 @@ export async function cerebrasChat(
     groqKey,
     REASONING_MODEL_GROQ,
     messages,
-    opts,
+    // this model spends tokens on internal reasoning before the answer
+    { ...opts, max_tokens: Math.max(opts.max_tokens ?? 1200, 2500) },
     "Groq",
   );
 }
